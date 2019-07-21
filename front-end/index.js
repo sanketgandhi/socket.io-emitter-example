@@ -6,20 +6,22 @@ const redis = require('redis');
 const redisAdapter = require('socket.io-redis');
 const path = require('path');
 
-const port = process.env.PORT || 6001;
+const serverPort = process.env.PORT || 6001;
+const redisHost = process.env.REDIS_HOST || '127.0.0.1';
+const redisPort = process.env.REDIS_PORT || 6379;
 
-let pub = redis.createClient();
-let sub = redis.createClient(null, null, {detect_buffers: true});
+let pubClient = redis.createClient();
+let subClient = redis.createClient(null, null, {detect_buffers: true});
 let io = require('socket.io')(http, {
-	adapter: redisAdapter({pubClient: pub, subClient: sub})
+	adapter: redisAdapter({pubClient: pubClient, subClient: subClient})
 });
 
 app.get('/', function(req, res) {
 	res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-http.listen(port, function() {
-	console.log('listening on 6000');
+http.listen(serverPort, function() {
+	console.log(`listening on ${serverPort}`);
 	debug('listening on *:6000');
 
 	io.on('connection', function(socket) {
